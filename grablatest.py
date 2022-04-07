@@ -5,6 +5,8 @@ import time
 import os
 import re
 
+# To use the script change the folder to whatever suits you or output in same directory. I run the script on a pi using crontab.
+
 link = 'https://play.rtl.lu/shows/lb/journal/episodes'
 links = []
 folder = '/mnt/Download/SERIES/RTL Journal/'
@@ -48,7 +50,7 @@ if nowday == latestjournalday:
     log('Grabbing latest episode')
     pass
 else:
-    log('Latest episode not yet uploaded')
+    log('Daily episode not yet uploaded')
     exit()
 
 # get playlistfile and chose the 1080p chunklist
