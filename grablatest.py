@@ -11,17 +11,20 @@ folder = '/mnt/Download/SERIES/RTL Journal/'
 
 now = time.strftime("%Y-%m")
 nowday = time.strftime("%d")
-time = time.strftime("%H:%M")
 
-print('Running script at ' + time )
+def log(text):
+    nowtime = time.strftime("%Y-%m-%d %H:%M:%S")
+    print( nowtime + ': ' + text)
+
+log('Running Script')
 
 # check if latest episode already exists in folder
-filename =  folder  + 'journal' + nowday + now + '.ts'
+filename =  folder  + 'journal' + now + '-' + nowday + '.ts'
 if os.path.isfile(filename):
-    print('File ' + filename + ' already exists, exiting')
+    log( 'File ' + filename + ' already exists, exiting' )
     exit()
 else:
-    print('File ' + filename + ' does not exist, continuing')
+    log( filename + ' does not exist, continuing')
 
 # get content of web page
 page = requests.get(link).text
@@ -42,10 +45,10 @@ baseurl = m3u8.get("content", None).strip('playlist.m3u8')
 soup.find(text=re.compile('De Journal')) 
 latestjournalday = soup.find(text=re.compile('De Journal')).strip("De Journal vum ").partition('.')[0]
 if nowday == latestjournalday:
-    print('Grabbing latest episode')
+    log('Grabbing latest episode')
     pass
 else:
-    print('Latest episode not yet uploaded')
+    log('Latest episode not yet uploaded')
     exit()
 
 # get playlistfile and chose the 1080p chunklist
@@ -53,5 +56,6 @@ r = requests.get(m3u8.get("content", None))
 m3u8hdurl = r.text.split('\n')[13]
 
 # todo: program fstab on raspberry
-subprocess.call(['sudo','ffmpeg', '-y', '-i', baseurl + m3u8hdurl, '-codec','copy', folder + 'journal' + nowday + now + '.ts'])
+subprocess.call(['sudo','ffmpeg', '-y', '-i', baseurl + m3u8hdurl, '-codec','copy', folder + 'journal' + now + '-' + nowday + '.ts'])
 
+log('Script finished')
