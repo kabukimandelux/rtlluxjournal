@@ -4,6 +4,9 @@ import requests
 import time
 import os
 import re
+import json
+import telegram
+
 
 # To use the script change the folder to whatever suits you or output in same directory. I run the script on a pi using crontab.
 
@@ -11,17 +14,23 @@ link = 'https://play.rtl.lu/shows/lb/journal/episodes'
 links = []
 folder = '/mnt/Download/SERIES/RTL Journal/'
 
-now = time.strftime("%Y-%m")
+now = time.strftime("%Y-%m-%d")
 nowday = time.strftime("%d")
 
 def log(text):
     nowtime = time.strftime("%Y-%m-%d %H:%M:%S")
     print( nowtime + ': ' + text)
 
-log('Running Script')
-
+def notify_ending(message):
+    with open('keys.json', 'r') as keys_file:
+        k = json.load(keys_file)
+        token = k['token']
+        chat_id = k['chat_id']    
+    bot = telegram.Bot(token=token)
+    bot.sendMessage(chat_id=chat_id, text=message)
+    
 # check if latest episode already exists in folder
-filename =  folder  + 'journal' + now + '-' + nowday + '.ts'
+filename =  folder  + 'journal' + now + '.ts'
 if os.path.isfile(filename):
     log( 'File ' + filename + ' already exists, exiting' )
     exit()
@@ -58,6 +67,7 @@ r = requests.get(m3u8.get("content", None))
 m3u8hdurl = r.text.split('\n')[13]
 
 # todo: program fstab on raspberry
-subprocess.call(['sudo','ffmpeg', '-y', '-i', baseurl + m3u8hdurl, '-codec','copy', folder + 'journal' + now + '-' + nowday + '.ts'])
+subprocess.call(['sudo','ffmpeg', '-y', '-i', baseurl + m3u8hdurl, '-codec','copy', folder + 'journal' + now + '.ts'])
 
+notify_ending('RTL Journal from day ' + now + ' uploaded to Plex')
 log('Script finished')
