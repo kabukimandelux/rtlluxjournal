@@ -24,7 +24,7 @@ def log(text):
     print( nowtime + ': ' + text)
 
 def notify_ending(message):
-    with open('keys.json', 'r') as keys_file:
+    with open('/home/pi/rtljournal/keys.json', 'r') as keys_file:
         k = json.load(keys_file)
         token = k['token']
         chat_id = k['chat_id']    
@@ -59,7 +59,6 @@ soup.find(text=re.compile('De Journal'))
 latestjournalstring = soup.find(text=re.compile('De Journal')).strip("De Journal vum ").partition('.')[0]
 latestjournalday = re.sub('\D','',latestjournalstring)
 
-print (nowday.lstrip('0') + ' ' + latestjournalday)
 if nowday.lstrip('0') == latestjournalday:
     log('Grabbing latest episode')
     pass
@@ -69,14 +68,14 @@ else:
 
 # get playlistfile and chose the 1080p chunklist
 r = requests.get(m3u8.get("content", None))
-print (r.text)
+
 m3u8hdurl = r.text.split('\n')
 useline = 0
 for q in qual:
     for line in m3u8hdurl:
         useline = useline + 1
         if str(q) in line:
-            print ('Qulity used is ' + m3u8hdurl[useline-1])
+            log('Qulity used is ' + m3u8hdurl[useline-1])
             break
 
 # todo: program fstab on raspberry
